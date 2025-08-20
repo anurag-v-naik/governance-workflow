@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Governance Decision Tool</title>
+    <meta name="description" content="Enterprise-grade data governance decision tool for intelligent recommendations">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="assets/icons/logo.svg" alt="Governance Tool" class="logo">
+                    <h1>Data Governance Decision Tool</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="user-menu-btn" class="user-menu-btn" aria-label="User Menu">
+                        <span id="user-name">System Admin</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </button>
+                    <div id="user-menu" class="user-menu hidden">
+                        <div class="user-info">
+                            <div class="user-avatar">SA</div>
+                            <div>
+                                <div class="user-name">System Admin</div>
+                                <div class="user-role">Administrator</div>
+                            </div>
+                        </div>
+                        <hr>
+                        <button class="menu-item" onclick="showUserSettings()">Settings</button>
+                        <button class="menu-item" onclick="exportAuditLog()">Audit Log</button>
+                        <button class="menu-item" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="assessment">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 11H7v9h2v-9zm4 0h-2v9h2v-9zm4 0h-2v9h2v-9zm2-7v2H3V4h3.5l1-1h5l1 1H17z"/>
+                </svg>
+                Assessment
+            </button>
+            <button class="nav-tab" data-tab="configuration">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12A3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1c0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66Z"/>
+                </svg>
+                Configuration
+            </button>
+            <button class="nav-tab" data-tab="rules">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Rules Engine
+            </button>
+            <button class="nav-tab" data-tab="analytics">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 21H2v-2h20v2zM4 3v12h4V9h4v6h4V7h4v8h2V3H4z"/>
+                </svg>
+                Analytics
+            </button>
+            <button class="nav-tab" data-tab="templates">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                </svg>
+                Templates
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Assessment Tab -->
+            <div id="assessment-tab" class="tab-content active">
+                <div class="assessment-container">
+                    <div class="assessment-header">
+                        <h2>Data Governance Assessment</h2>
+                        <div class="assessment-actions">
+                            <button id="save-assessment" class="btn btn-secondary">Save Progress</button>
+                            <button id="load-assessment" class="btn btn-secondary">Load Assessment</button>
+                            <button id="new-assessment" class="btn btn-primary">New Assessment</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0% Complete</span>
+                    </div>
+
+                    <!-- Assessment Form -->
+                    <form id="assessment-form" class="assessment-form">
+                        <div id="question-container" class="question-container">
+                            <!-- Questions will be dynamically loaded here -->
+                        </div>
+                        
+                        <div class="form-navigation">
+                            <button type="button" id="prev-question" class="btn btn-secondary" disabled>Previous</button>
+                            <button type="button" id="next-question" class="btn btn-primary">Next</button>
+                            <button type="submit" id="submit-assessment" class="btn btn-success hidden">Complete Assessment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Configuration Tab -->
+            <div id="configuration-tab" class="tab-content">
+                <div class="config-container">
+                    <div class="config-header">
+                        <h2>Question Configuration</h2>
+                        <div class="config-actions">
+                            <button id="import-config" class="btn btn-secondary">Import</button>
+                            <button id="export-config" class="btn btn-secondary">Export</button>
+                            <button id="add-question" class="btn btn-primary">Add Question</button>
+                        </div>
+                    </div>
+
+                    <div class="config-content">
+                        <div class="config-sidebar">
+                            <h3>Question Types</h3>
+                            <div class="question-types">
+                                <div class="question-type" data-type="single-select">
+                                    <div class="type-icon">⚪</div>
+                                    <div>Single Select</div>
+                                </div>
+                                <div class="question-type" data-type="multi-select">
+                                    <div class="type-icon">☑️</div>
+                                    <div>Multi Select</div>
+                                </div>
+                                <div class="question-type" data-type="text-input">
+                                    <div class="type-icon">📝</div>
+                                    <div>Text Input</div>
+                                </div>
+                                <div class="question-type" data-type="number-input">
+                                    <div class="type-icon">🔢</div>
+                                    <div>Number Input</div>
+                                </div>
+                                <div class="question-type" data-type="rating-scale">
+                                    <div class="type-icon">⭐</div>
+                                    <div>Rating Scale</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="config-main">
+                            <div id="question-list" class="question-list">
+                                <!-- Questions will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="config-editor">
+                            <div id="question-editor" class="question-editor">
+                                <h3>Question Editor</h3>
+                                <p>Select a question to edit or add a new one</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rules Engine Tab -->
+            <div id="rules-tab" class="tab-content">
+                <div class="rules-container">
+                    <div class="rules-header">
+                        <h2>Rules Engine</h2>
+                        <div class="rules-actions">
+                            <button id="import-rules" class="btn btn-secondary">Import Rules</button>
+                            <button id="export-rules" class="btn btn-secondary">Export Rules</button>
+                            <button id="test-rules" class="btn btn-secondary">Test Rules</button>
+                            <button id="add-rule" class="btn btn-primary">Add Rule</button>
+                        </div>
+                    </div>
+
+                    <div class="rules-content">
+                        <div class="rules-list">
+                            <h3>Active Rules</h3>
+                            <div id="rules-container" class="rules-items">
+                                <!-- Rules will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="rule-builder">
+                            <h3>Rule Builder</h3>
+                            <div id="rule-editor" class="rule-editor">
+                                <div class="rule-form">
+                                    <input type="text" id="rule-name" placeholder="Rule Name" class="form-input">
+                                    <textarea id="rule-description" placeholder="Rule Description" class="form-textarea"></textarea>
+                                    
+                                    <div class="conditions-section">
+                                        <h4>Conditions</h4>
+                                        <div id="conditions-container" class="conditions-container">
+                                            <!-- Conditions will be added here -->
+                                        </div>
+                                        <button type="button" id="add-condition" class="btn btn-secondary btn-sm">Add Condition</button>
+                                    </div>
+
+                                    <div class="actions-section">
+                                        <h4>Actions</h4>
+                                        <div id="actions-container" class="actions-container">
+                                            <!-- Actions will be added here -->
+                                        </div>
+                                        <button type="button" id="add-action" class="btn btn-secondary btn-sm">Add Action</button>
+                                    </div>
+
+                                    <div class="rule-form-actions">
+                                        <button type="button" id="save-rule" class="btn btn-primary">Save Rule</button>
+                                        <button type="button" id="cancel-rule" class="btn btn-secondary">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="analytics-container">
+                    <div class="analytics-header">
+                        <h2>Analytics & Reporting</h2>
+                        <div class="analytics-actions">
+                            <button id="refresh-analytics" class="btn btn-secondary">Refresh</button>
+                            <button id="export-report" class="btn btn-primary">Export Report</button>
+                        </div>
+                    </div>
+
+                    <div class="analytics-content">
+                        <div class="analytics-grid">
+                            <div class="analytics-card">
+                                <h3>Assessment Overview</h3>
+                                <div class="metric">
+                                    <span class="metric-value" id="total-assessments">0</span>
+                                    <span class="metric-label">Total Assessments</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-value" id="avg-completion-time">0min</span>
+                                    <span class="metric-label">Avg Completion Time</span>
+                                </div>
+                            </div>
+
+                            <div class="analytics-card">
+                                <h3>Governance Maturity</h3>
+                                <canvas id="maturity-chart" width="300" height="200"></canvas>
+                            </div>
+
+                            <div class="analytics-card">
+                                <h3>Risk Distribution</h3>
+                                <canvas id="risk-chart" width="300" height="200"></canvas>
+                            </div>
+
+                            <div class="analytics-card">
+                                <h3>Recent Activity</h3>
+                                <div id="recent-activity" class="activity-list">
+                                    <!-- Recent activity will be listed here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Templates Tab -->
+            <div id="templates-tab" class="tab-content">
+                <div class="templates-container">
+                    <div class="templates-header">
+                        <h2>Recommendation Templates</h2>
+                        <div class="templates-actions">
+                            <button id="import-templates" class="btn btn-secondary">Import</button>
+                            <button id="export-templates" class="btn btn-secondary">Export</button>
+                            <button id="add-template" class="btn btn-primary">Add Template</button>
+                        </div>
+                    </div>
+
+                    <div class="templates-content">
+                        <div class="templates-list">
+                            <div id="templates-container" class="templates-grid">
+                                <!-- Templates will be listed here -->
+                            </div>
+                        </div>
+
+                        <div class="template-editor">
+                            <h3>Template Editor</h3>
+                            <div id="template-form" class="template-form">
+                                <input type="text" id="template-name" placeholder="Template Name" class="form-input">
+                                <textarea id="template-description" placeholder="Template Description" class="form-textarea"></textarea>
+                                <div class="template-sections">
+                                    <!-- Template sections will be dynamically added -->
+                                </div>
+                                <div class="template-form-actions">
+                                    <button type="button" id="save-template" class="btn btn-primary">Save Template</button>
+                                    <button type="button" id="preview-template" class="btn btn-secondary">Preview</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Results Modal -->
+        <div id="results-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Assessment Results</h2>
+                    <button class="modal-close" onclick="closeModal('results-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="results-content" class="results-content">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="export-pdf" class="btn btn-primary">Export PDF</button>
+                    <button id="export-json" class="btn btn-secondary">Export JSON</button>
+                    <button id="email-results" class="btn btn-secondary">Email Results</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/validation.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/core/state-manager.js"></script>
+    <script src="js/core/event-bus.js"></script>
+    <script src="js/ui/navigation-controller.js"></script>
+    <script src="js/ui/modal-manager.js"></script>
+    <script src="js/ui/question-renderer.js"></script>
+    <script src="js/ui/theme-manager.js"></script>
+    <script src="js/config/question-builder.js"></script>
+    <script src="js/config/rule-builder.js"></script>
+    <script src="js/config/template-manager.js"></script>
+    <script src="js/engine/rules-engine.js"></script>
+    <script src="js/engine/recommendation-engine.js"></script>
+    <script src="js/engine/validation-engine.js"></script>
+    <script src="js/export/pdf-generator.js"></script>
+    <script src="js/export/excel-generator.js"></script>
+    <script src="js/export/email-integration.js"></script>
+    <script src="js/analytics/usage-tracker.js"></script>
+    <script src="js/analytics/reporting-engine.js"></script>
+    <script src="js/analytics/dashboard-controller.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

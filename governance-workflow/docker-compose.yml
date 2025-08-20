@@ -1,0 +1,114 @@
+# docker-compose.yml - Docker Compose configuration for Data Governance Decision Tool
+# Provides easy local development and production deployment
+
+version: '3.8'
+
+services:
+  # Main application service
+  governance-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-1.0.0}
+        BUILD_DATE: ${BUILD_DATE:-2025-08-19}
+        COMMIT_SHA: ${COMMIT_SHA:-latest}
+    image: governance-tool:${VERSION:-latest}
+    container_name: governance-tool-app
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      # Optional: Mount custom configuration
+      - ${CONFIG_PATH:-./config}:/app/config:ro
+      # Optional: Mount custom themes
+      - ${THEMES_PATH:-./themes}:/app/css/themes:ro
+      # Optional: Mount logs directory
+      - ${LOGS_PATH:-./logs}:/var/log/nginx
+    networks:
+      - governance-network
+    restart: unless-stopped
+
+  # Optional: Redis for caching (future enhancement)
+  redis:
+    image: redis:7-alpine
+    container_name: governance-redis
+    profiles:
+      - cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-governance123}
+    networks:
+      - governance-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Backup service
+  backup:
+    image: alpine:latest
+    container_name: governance-backup
+    profiles:
+      - backup
+    volumes:
+      - ${BACKUP_PATH:-./backups}:/backups
+      - ${LOGS_PATH:-./logs}:/source/logs:ro
+      - ${CONFIG_PATH:-./config}:/source/config:ro
+    environment:
+      - BACKUP_SCHEDULE=${BACKUP_SCHEDULE:-0 2 * * *}
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+    command: |
+      sh -c '
+        apk add --no-cache dcron tar gzip &&
+        echo "${BACKUP_SCHEDULE} /backup.sh" | crontab - &&
+        cat > /backup.sh << "EOF"
+        #!/bin/sh
+        DATE=$(date +%Y%m%d_%H%M%S)
+        echo "Starting backup at $DATE"
+        mkdir -p /backups/$DATE
+        tar -czf /backups/$DATE/logs.tar.gz -C /source logs/
+        tar -czf /backups/$DATE/config.tar.gz -C /source config/
+        find /backups -type d -mtime +${BACKUP_RETENTION_DAYS:-30} -exec rm -rf {} +
+        echo "Backup completed at $DATE"
+        EOF &&
+        chmod +x /backup.sh &&
+        crond -f -l 2
+      '
+    networks:
+      - governance-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  governance-network:
+    driver: bridge
+    name: governance-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes for persistent data
+volumes:
+  prometheus-data:
+    name: governance-prometheus-data
+    driver: local
+  
+  grafana-data:
+    name: governance-grafana-data
+    driver: local
+  
+  loki-data:
+    name: governance-loki-data
+    driver: local
+  
+  redis-data:
+    name: governance-redis-data
+    driver: local
+
