@@ -1,3 +1,4 @@
+
 # Data Governance Decision Tool
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
@@ -470,4 +471,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the Enterprise Data Governance Team**
 
-For more information, visit our [documentation site](https://governance-tool.enterprise.com) or contact us at [governance@enterprise.com](mailto:governance@enterprise.com).x
+For more information, visit our [documentation site](https://governance-tool.enterprise.com) or contact us at [governance@enterprise.com](mailto:governance@enterprise.com).
