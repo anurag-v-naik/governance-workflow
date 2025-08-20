@@ -11,7 +11,20 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (including dev dependencies for building)
-RUN npm ci --only=production --silent
+#RUN npm ci --only=production --silent
+#RUN npm ci --silent
+
+# ...existing code...
+WORKDIR /app
+
+COPY package*.json ./
+
+# Install build dependencies for mozjpeg and other native modules
+RUN apk add --no-cache autoconf automake libtool nasm build-base pkgconfig python3
+
+RUN npm ci
+# ...rest of your Dockerfile...
+RUN npm ci 
 
 # Copy source code
 COPY . .
