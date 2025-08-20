@@ -1,0 +1,28 @@
+{
+  "id": "governance_template_advanced",
+  "name": "Advanced Governance Assessment Template",
+  "description": "Includes advanced domains such as data ethics, lifecycle management, and third-party risk.",
+  "domains": [
+    {
+      "name": "Data Ethics",
+      "questions": [
+        "Are ethical guidelines for data use established?",
+        "Is data bias regularly assessed?"
+      ]
+    },
+    {
+      "name": "Lifecycle Management",
+      "questions": [
+        "Is there a data lifecycle management policy?",
+        "Are data deletion and archival processes defined?"
+      ]
+    },
+    {
+      "name": "Third-Party Risk",
+      "questions": [
+        "Are third-party data processors assessed for compliance?",
+        "Is there a process for vendor risk management?"
+      ]
+    }
+  ]
+}

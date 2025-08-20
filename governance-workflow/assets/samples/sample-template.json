@@ -1,0 +1,13 @@
+{
+  "id": "template_001",
+  "name": "Standard Data Governance Template",
+  "description": "A template for standard data governance assessments.",
+  "sections": {
+    "introduction": "This template covers core governance domains.",
+    "domains": [
+      {"name": "Data Quality", "questions": ["Is data validated?", "Are data sources documented?"]},
+      {"name": "Security", "questions": ["Is data encrypted?", "Are access controls in place?"]},
+      {"name": "Compliance", "questions": ["Is GDPR compliance ensured?", "Are audits performed regularly?"]}
+    ]
+  }
+}
