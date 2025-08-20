@@ -1,0 +1,287 @@
+{
+  "name": "data-governance-decision-tool",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Data Governance Decision Tool for intelligent recommendations on data placement, governance controls, and sharing strategies",
+  "main": "index.html",
+  "keywords": [
+    "data-governance",
+    "enterprise",
+    "decision-tool",
+    "recommendations",
+    "compliance",
+    "data-management",
+    "governance-framework"
+  ],
+  "author": {
+    "name": "Enterprise Data Governance Team",
+    "email": "governance@enterprise.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/enterprise/governance-workflow.git"
+  },
+  "homepage": "https://governance-tool.enterprise.com",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm run build:css && npm run build:js && npm run build:assets",
+    "build:css": "postcss css/styles.css -o dist/styles.min.css --map",
+    "build:js": "npm run concat:js && npm run minify:js",
+    "build:assets": "npm run copy:assets && npm run optimize:images",
+    "concat:js": "concat-files -s js -o dist/app.concat.js",
+    "minify:js": "terser dist/app.concat.js -c -m -o dist/app.min.js --source-map",
+    "copy:assets": "cp -r assets dist/ && cp index.html dist/",
+    "optimize:images": "imagemin dist/assets/icons/* --out-dir=dist/assets/icons",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:e2e": "cypress run",
+    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:integration": "jest --testPathPattern=tests/integration",
+    "lint": "eslint js/ --ext .js",
+    "lint:fix": "eslint js/ --ext .js --fix",
+    "format": "prettier --write js/ css/ *.html *.md",
+    "validate": "npm run lint && npm run test",
+    "clean": "rm -rf dist node_modules/.cache",
+    "serve": "live-server --port=8080 --host=0.0.0.0",
+    "serve:dist": "live-server dist --port=8080 --host=0.0.0.0",
+    "deploy": "npm run build && npm run deploy:docker",
+    "deploy:docker": "docker build -t governance-tool . && docker tag governance-tool governance-tool:latest",
+    "deploy:aws": "npm run build && aws s3 sync dist/ s3://governance-tool-bucket --delete",
+    "deploy:azure": "npm run build && az webapp deployment source config-zip --resource-group governance-rg --name governance-app --src dist.zip",
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "deploy:standalone": "npm run build && npm run package:standalone",
+    "package:standalone": "zip -r governance-tool-standalone-v$(npm run version --silent).zip dist/ docs/ README.md LICENSE",
+    "version": "echo $npm_package_version",
+    "security:audit": "npm audit && npm run security:check",
+    "security:check": "eslint-config-security",
+    "docs:generate": "jsdoc js/ -d docs/api -r",
+    "docs:serve": "live-server docs --port=8081",
+    "backup:config": "node scripts/backup-config.js",
+    "restore:config": "node scripts/restore-config.js",
+    "migrate:data": "node scripts/migrate-data.js",
+    "health:check": "node scripts/health-check.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "rate-limiter-flexible": "^3.0.8",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.2",
+    "nodemon": "^3.0.1",
+    "eslint": "^8.46.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-config-security": "^0.1.0",
+    "prettier": "^3.0.1",
+    "postcss": "^8.4.27",
+    "postcss-cli": "^10.1.0",
+    "autoprefixer": "^10.4.14",
+    "terser": "^5.19.2",
+    "concat-files": "^0.1.1",
+    "imagemin": "^8.0.1",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-mozjpeg": "^10.0.0",
+    "live-server": "^1.2.2",
+    "cypress": "^12.17.3",
+    "jsdoc": "^4.0.2",
+    "@types/jest": "^29.5.3"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/**/*.test.js",
+      "!js/vendor/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    },
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+  },
+  "eslintConfig": {
+    "extends": ["airbnb-base"],
+    "env": {
+      "browser": true,
+      "node": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": "error",
+      "prefer-const": "error",
+      "no-var": "error"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "config": {
+    "app": {
+      "name": "Data Governance Decision Tool",
+      "version": "1.0.0",
+      "environment": "production",
+      "port": 3000,
+      "host": "0.0.0.0"
+    },
+    "security": {
+      "enableCSP": true,
+      "enableHSTS": true,
+      "enableCORS": true,
+      "rateLimitMax": 100,
+      "rateLimitWindow": 900000
+    },
+    "features": {
+      "analytics": true,
+      "auditLog": true,
+      "export": true,
+      "import": true,
+      "multiUser": false,
+      "sso": false
+    }
+  },
+  "metadata": {
+    "created": "2025-08-19",
+    "lastUpdated": "2025-08-19",
+    "maintainers": [
+      {
+        "name": "System Administrator",
+        "email": "admin@enterprise.com",
+        "role": "Lead Developer"
+      },
+      {
+        "name": "Data Governance Team",
+        "email": "governance@enterprise.com",
+        "role": "Product Owner"
+      }
+    ],
+    "documentation": {
+      "userGuide": "docs/user-guide.md",
+      "adminGuide": "docs/admin-guide.md",
+      "apiDocs": "docs/api-docs.md",
+      "deployment": "docs/deployment.md"
+    },
+    "support": {
+      "email": "support@enterprise.com",
+      "documentation": "https://governance-tool.enterprise.com/docs",
+      "issues": "https://github.com/enterprise/governance-workflow/issues"
+    }
+  },
+  "deployment": {
+    "targets": {
+      "docker": {
+        "enabled": true,
+        "registry": "governance-registry.enterprise.com",
+        "image": "governance-tool",
+        "tag": "latest"
+      },
+      "aws": {
+        "enabled": true,
+        "bucket": "governance-tool-bucket",
+        "region": "us-east-1",
+        "cloudfront": true
+      },
+      "azure": {
+        "enabled": true,
+        "resourceGroup": "governance-rg",
+        "appName": "governance-app",
+        "location": "East US"
+      },
+      "kubernetes": {
+        "enabled": true,
+        "namespace": "governance",
+        "replicas": 3
+      }
+    },
+    "environments": {
+      "development": {
+        "url": "http://localhost:3000",
+        "features": {
+          "analytics": true,
+          "debug": true,
+          "hotReload": true
+        }
+      },
+      "staging": {
+        "url": "https://staging-governance.enterprise.com",
+        "features": {
+          "analytics": true,
+          "debug": false,
+          "auditLog": true
+        }
+      },
+      "production": {
+        "url": "https://governance.enterprise.com",
+        "features": {
+          "analytics": true,
+          "debug": false,
+          "auditLog": true,
+          "monitoring": true
+        }
+      }
+    }
+  },
+  "security": {
+    "vulnerabilities": {
+      "check": "npm audit",
+      "fix": "npm audit fix",
+      "report": "npm run security:audit"
+    },
+    "csp": {
+      "defaultSrc": ["'self'"],
+      "styleSrc": ["'self'", "'unsafe-inline'"],
+      "scriptSrc": ["'self'"],
+      "imgSrc": ["'self'", "data:", "https:"],
+      "connectSrc": ["'self'"],
+      "fontSrc": ["'self'"],
+      "objectSrc": ["'none'"],
+      "mediaSrc": ["'self'"],
+      "frameSrc": ["'none'"]
+    }
+  },
+  "monitoring": {
+    "healthCheck": {
+      "endpoint": "/health",
+      "timeout": 5000,
+      "interval": 30000
+    },
+    "metrics": {
+      "enabled": true,
+      "endpoint": "/metrics",
+      "retention": "30d"
+    },
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "destination": "stdout"
+    }
+  }
+}

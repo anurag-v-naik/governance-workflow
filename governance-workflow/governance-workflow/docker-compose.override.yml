@@ -1,0 +1,149 @@
+# Development override (docker-compose.override.yml)
+# This file is automatically loaded in development
+---
+# docker-compose.override.yml content for development
+version: '3.8'
+
+services:
+  governance-tool:
+    build:
+      target: development  # If multi-stage build with dev target
+    environment:
+      - NODE_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=debug
+    volumes:
+      # Mount source code for hot reloading in development
+      - ./css:/app/css
+      - ./js:/app/js
+      - ./assets:/app/assets
+      - ./index.html:/app/index.html
+    ports:
+      - "8080:80"
+      - "3001:3001"  # Development server port
+    command: npm run dev  # Override for development
+
+  # Development database (if needed for future features)
+  postgres:
+    image: postgres:15-alpine
+    container_name: governance-postgres-dev
+    environment:
+      - POSTGRES_DB=governance_dev
+      - POSTGRES_USER=governance
+      - POSTGRES_PASSWORD=dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - governance-network
+
+volumes:
+  postgres-dev-data:
+    name: governance-postgres-dev-data-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.governance.rule=Host(`governance.localhost`)"
+      - "traefik.http.services.governance.loadbalancer.server.port=80"
+      - "com.governance.service=web"
+      - "com.governance.version=${VERSION:-1.0.0}"
+
+  # Optional: Reverse proxy for production
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: governance-proxy
+    profiles:
+      - production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - governance-network
+    depends_on:
+      - governance-tool
+    restart: unless-stopped
+
+  # Optional: Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: governance-prometheus
+    profiles:
+      - monitoring
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - governance-network
+    restart: unless-stopped
+
+  # Optional: Grafana for dashboard visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: governance-grafana
+    profiles:
+      - monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - governance-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Optional: Log aggregation with Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: governance-loki
+    profiles:
+      - logging
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - governance-network
+    restart: unless-stopped
+
+  # Optional: Promtail for log collection
+  promtail:
+    image: grafana/promtail:latest
+    container_name: governance-promtail
+    profiles:
+      - logging
+    volumes:
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+      - ${LOGS_PATH:-./logs}:/var/log/nginx:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - governance-network
+    depends_on:
+      - loki
+    restart: unless-stopped
