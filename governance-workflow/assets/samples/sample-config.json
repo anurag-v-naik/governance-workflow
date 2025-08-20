@@ -1,0 +1,13 @@
+{
+  "environment": "production",
+  "features": {
+    "multiUser": false,
+    "sso": false,
+    "exportPDF": true,
+    "exportExcel": true,
+    "emailIntegration": true,
+    "advancedAnalytics": true
+  },
+  "auditLog": true,
+  "encryption": true
+}

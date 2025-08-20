@@ -1,0 +1,14 @@
+{
+  "id": "governance_template_minimal",
+  "name": "Minimal Governance Template",
+  "description": "A minimal template for quick assessments.",
+  "domains": [
+    {
+      "name": "Core",
+      "questions": [
+        "Is data ownership defined?",
+        "Are basic access controls in place?"
+      ]
+    }
+  ]
+}

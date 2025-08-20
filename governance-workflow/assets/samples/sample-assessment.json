@@ -1,0 +1,16 @@
+{
+  "id": "assessment_001",
+  "organization": "Acme Corp",
+  "department": "IT",
+  "timestamp": "2025-08-19T10:00:00Z",
+  "responses": [
+    {"id": "q1", "category": "Data Quality", "question": "Is data validated?", "answer": "Yes", "score": 5},
+    {"id": "q2", "category": "Security", "question": "Is data encrypted?", "answer": "No", "score": 2},
+    {"id": "q3", "category": "Compliance", "question": "Is GDPR compliance ensured?", "answer": "Yes", "score": 4}
+  ],
+  "maturityScore": 3.7,
+  "riskLevel": "Medium",
+  "recommendations": [
+    {"title": "Enable Encryption", "description": "Encrypt all sensitive data at rest and in transit.", "priority": "High", "effort": "Medium", "benefits": "Reduces risk of data breach."}
+  ]
+}

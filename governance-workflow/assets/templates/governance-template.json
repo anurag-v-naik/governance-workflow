@@ -1,0 +1,31 @@
+{
+  "id": "governance_template_standard",
+  "name": "Standard Governance Assessment Template",
+  "description": "Covers data quality, security, and compliance domains for a typical organization.",
+  "domains": [
+    {
+      "name": "Data Quality",
+      "questions": [
+        "Is data validated before use?",
+        "Are data sources documented?",
+        "Is data regularly reviewed for accuracy?"
+      ]
+    },
+    {
+      "name": "Security",
+      "questions": [
+        "Is sensitive data encrypted?",
+        "Are access controls enforced?",
+        "Is there a data breach response plan?"
+      ]
+    },
+    {
+      "name": "Compliance",
+      "questions": [
+        "Is GDPR compliance ensured?",
+        "Are regular audits performed?",
+        "Is data retention policy documented?"
+      ]
+    }
+  ]
+}
